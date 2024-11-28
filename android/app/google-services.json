@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "324392770662",
+    "project_id": "medicre-8d8d3",
+    "storage_bucket": "medicre-8d8d3.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:324392770662:android:884af7c6b5e373cf9921a7",
+        "android_client_info": {
+          "package_name": "com.example.medicre"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD2f1g1P3h3k1GOsCd9fsF_cAN8HBMi6ro"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
