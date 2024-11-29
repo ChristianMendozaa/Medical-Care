@@ -33,12 +33,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
       final userId = userCredential.user?.uid;
       if (userId != null) {
-        emit(AuthSuccess(userId));
+        emit(AuthSuccess(userId).copyWith(userId: userId));
       } else {
-        emit(AuthFailure('No se pudo obtener información del usuario.'));
+        emit(const AuthFailure('No se pudo obtener información del usuario.'));
       }
     } catch (e) {
-      emit(AuthFailure('Error al iniciar sesión: ${e.toString()}'));
+      emit(AuthFailure('Error al iniciar sesión: ${e.toString()}')
+          .copyWith(message: 'Error al iniciar sesión: ${e.toString()}'));
     }
   }
 
@@ -73,12 +74,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           'createdAt': DateTime.now(),
         });
 
-        emit(AuthSuccess(user.uid));
+        emit(AuthSuccess(user.uid).copyWith(userId: user.uid));
       } else {
-        emit(AuthFailure('No se pudo crear el usuario.'));
+        emit(const AuthFailure('No se pudo crear el usuario.'));
       }
     } catch (e) {
-      emit(AuthFailure('Error al registrarse: ${e.toString()}'));
+      emit(AuthFailure('Error al registrarse: ${e.toString()}')
+          .copyWith(message: 'Error al registrarse: ${e.toString()}'));
     }
   }
 
@@ -88,7 +90,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       await _auth.signOut();
       emit(AuthUnauthenticated());
     } catch (e) {
-      emit(AuthFailure('Error al cerrar sesión: ${e.toString()}'));
+      emit(AuthFailure('Error al cerrar sesión: ${e.toString()}')
+          .copyWith(message: 'Error al cerrar sesión: ${e.toString()}'));
     }
   }
 }

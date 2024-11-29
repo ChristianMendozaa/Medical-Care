@@ -30,8 +30,15 @@ class _LoginViewState extends State<LoginView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('Iniciar Sesión'),
+        backgroundColor: Colors.blueAccent,
+        elevation: 0,
+        title: const Text(
+          'Iniciar Sesión',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        centerTitle: true,
       ),
       body: BlocProvider(
         create: (_) => AuthBloc(),
@@ -44,14 +51,17 @@ class _LoginViewState extends State<LoginView> {
               );
             } else if (state is AuthFailure) {
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(state.message)),
+                SnackBar(
+                  content: Text(state.message),
+                  backgroundColor: Colors.redAccent,
+                ),
               );
             }
           },
           child: Center(
             child: SingleChildScrollView(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -63,20 +73,33 @@ class _LoginViewState extends State<LoginView> {
                     ),
                     const SizedBox(height: 20),
                     const Text(
-                      "Iniciar Sesión",
-                      style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+                      "¡Bienvenido de nuevo!",
+                      style: TextStyle(
+                        fontSize: 26,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.blueAccent,
+                      ),
+                      textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 10),
                     Text(
-                      "Accede a tu cuenta",
+                      "Por favor, inicia sesión para continuar",
                       style: TextStyle(fontSize: 16, color: Colors.grey[700]),
+                      textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 30),
                     TextFormField(
                       controller: emailController,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         labelText: 'Correo electrónico',
-                        border: OutlineInputBorder(),
+                        labelStyle: const TextStyle(color: Colors.blueAccent),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: const BorderSide(color: Colors.blueAccent),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -85,12 +108,20 @@ class _LoginViewState extends State<LoginView> {
                       obscureText: !isPasswordVisible,
                       decoration: InputDecoration(
                         labelText: 'Contraseña',
-                        border: const OutlineInputBorder(),
+                        labelStyle: const TextStyle(color: Colors.blueAccent),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: const BorderSide(color: Colors.blueAccent),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                         suffixIcon: IconButton(
                           icon: Icon(
                             isPasswordVisible
                                 ? Icons.visibility
                                 : Icons.visibility_off,
+                            color: Colors.blueAccent,
                           ),
                           onPressed: () {
                             setState(() {
@@ -117,8 +148,14 @@ class _LoginViewState extends State<LoginView> {
                                     );
                                   },
                             style: ElevatedButton.styleFrom(
-                              backgroundColor:
-                                  const Color.fromARGB(255, 198, 12, 12),
+                              backgroundColor: Colors.blueAccent,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 16,
+                                horizontal: 40,
+                              ),
                             ),
                             child: isLoading
                                 ? const CircularProgressIndicator(
@@ -126,7 +163,11 @@ class _LoginViewState extends State<LoginView> {
                                   )
                                 : const Text(
                                     'Iniciar Sesión',
-                                    style: TextStyle(color: Colors.white),
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
                                   ),
                           ),
                         );
@@ -143,7 +184,7 @@ class _LoginViewState extends State<LoginView> {
                             TextSpan(
                               text: 'Regístrate',
                               style: const TextStyle(
-                                color: Color.fromARGB(255, 198, 12, 12),
+                                color: Colors.blueAccent,
                                 fontWeight: FontWeight.bold,
                               ),
                               recognizer: TapGestureRecognizer()

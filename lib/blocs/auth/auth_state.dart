@@ -1,6 +1,8 @@
 import 'package:equatable/equatable.dart';
 
 abstract class AuthState extends Equatable {
+  const AuthState();
+
   @override
   List<Object?> get props => [];
 }
@@ -15,10 +17,14 @@ class AuthLoading extends AuthState {}
 class AuthSuccess extends AuthState {
   final String userId;
 
-  AuthSuccess(this.userId);
+  const AuthSuccess(this.userId);
 
   @override
   List<Object?> get props => [userId];
+
+  AuthSuccess copyWith({String? userId}) {
+    return AuthSuccess(userId ?? this.userId);
+  }
 }
 
 // Estado de no autenticado
@@ -28,8 +34,12 @@ class AuthUnauthenticated extends AuthState {}
 class AuthFailure extends AuthState {
   final String message;
 
-  AuthFailure(this.message);
+  const AuthFailure(this.message);
 
   @override
   List<Object?> get props => [message];
+
+  AuthFailure copyWith({String? message}) {
+    return AuthFailure(message ?? this.message);
+  }
 }

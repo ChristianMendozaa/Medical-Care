@@ -18,7 +18,7 @@ class DiagnosticBloc extends Bloc<DiagnosticEvent, DiagnosticState> {
 
   Future<void> _onAddDiagnostic(
       AddDiagnosticEvent event, Emitter<DiagnosticState> emit) async {
-    emit(DiagnosticLoading()); // Emite estado de carga
+    emit(DiagnosticLoading());
     try {
       String? imageUrl;
 
@@ -38,21 +38,22 @@ class DiagnosticBloc extends Bloc<DiagnosticEvent, DiagnosticState> {
         'observations': event.observations,
         'imageUrl': imageUrl,
         'createdAt': DateTime.now(),
-        'diagnosticType': event.diagnosticType, // Tipo de diagnóstico
-        'selectedPrediction': event.selectedPrediction, // Predicción seleccionada
+        'diagnosticType': event.diagnosticType,
+        'selectedPrediction': event.selectedPrediction,
       });
 
-      emit(DiagnosticSuccess()); // Emite estado de éxito
+      emit(DiagnosticSuccess());
     } catch (e) {
-      print('Error al guardar diagnóstico: $e');
-      emit(DiagnosticFailure(
-          'Error al guardar diagnóstico: ${e.toString()}')); // Emite estado de error
+      emit(
+        DiagnosticFailure('Error al guardar diagnóstico: ${e.toString()}')
+            .copyWith(message: 'Error al guardar diagnóstico: ${e.toString()}'),
+      );
     }
   }
 
   Future<void> _onLoadDiagnostics(
       LoadDiagnosticsEvent event, Emitter<DiagnosticState> emit) async {
-    emit(DiagnosticLoading()); // Emite estado de carga
+    emit(DiagnosticLoading());
     try {
       final querySnapshot = await _firestore
           .collection('diagnostics')
@@ -66,10 +67,15 @@ class DiagnosticBloc extends Bloc<DiagnosticEvent, DiagnosticState> {
         };
       }).toList();
 
-      emit(DiagnosticsLoaded(diagnostics)); // Emite estado con datos cargados
+      emit(
+        DiagnosticsLoaded(diagnostics)
+            .copyWith(diagnostics: diagnostics), // Uso de copyWith
+      );
     } catch (e) {
-      print('Error al cargar diagnósticos: $e');
-      emit(DiagnosticFailure('Error al cargar diagnósticos: ${e.toString()}')); // Emite estado de error
+      emit(
+        DiagnosticFailure('Error al cargar diagnósticos: ${e.toString()}')
+            .copyWith(message: 'Error al cargar diagnósticos: ${e.toString()}'),
+      );
     }
   }
 }
