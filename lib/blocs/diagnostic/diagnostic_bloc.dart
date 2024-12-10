@@ -1,16 +1,17 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:bloc/bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
+import 'package:http/http.dart' as http;
 import 'diagnostic_event.dart';
 import 'diagnostic_state.dart';
 
 class DiagnosticBloc extends Bloc<DiagnosticEvent, DiagnosticState> {
   final FirebaseFirestore _firestore;
-  final FirebaseStorage _storage;
 
-  DiagnosticBloc({FirebaseFirestore? firestore, FirebaseStorage? storage})
+  DiagnosticBloc({FirebaseFirestore? firestore})
       : _firestore = firestore ?? FirebaseFirestore.instance,
-        _storage = storage ?? FirebaseStorage.instance,
         super(DiagnosticInitial()) {
     on<AddDiagnosticEvent>(_onAddDiagnostic);
     on<LoadDiagnosticsEvent>(_onLoadDiagnostics);
@@ -22,13 +23,9 @@ class DiagnosticBloc extends Bloc<DiagnosticEvent, DiagnosticState> {
     try {
       String? imageUrl;
 
-      // Subir imagen a Firebase Storage
+      // Subir imagen a Imgbb
       if (event.image != null) {
-        final ref = _storage
-            .ref()
-            .child('diagnostics/${DateTime.now().millisecondsSinceEpoch}.jpg');
-        final uploadTask = await ref.putFile(event.image!);
-        imageUrl = await uploadTask.ref.getDownloadURL();
+        imageUrl = await _uploadImageToImgbb(event.image!);
       }
 
       // Guardar datos en Firestore
@@ -48,6 +45,24 @@ class DiagnosticBloc extends Bloc<DiagnosticEvent, DiagnosticState> {
         DiagnosticFailure('Error al guardar diagnóstico: ${e.toString()}')
             .copyWith(message: 'Error al guardar diagnóstico: ${e.toString()}'),
       );
+    }
+  }
+
+  Future<String> _uploadImageToImgbb(File image) async {
+    const imgbbApiKey = '2c68fb0d7ff2f04835d1da3cf672e0a3';
+    final url = Uri.parse('https://api.imgbb.com/1/upload');
+    final request = http.MultipartRequest('POST', url)
+      ..fields['key'] = imgbbApiKey
+      ..files.add(await http.MultipartFile.fromPath('image', image.path));
+
+    final response = await request.send();
+
+    if (response.statusCode == 200) {
+      final responseData = jsonDecode(await response.stream.bytesToString());
+      return responseData['data']['url'];
+    } else {
+      throw Exception(
+          'Error al subir imagen a Imgbb: ${response.reasonPhrase}');
     }
   }
 

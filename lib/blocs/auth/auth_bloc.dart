@@ -1,22 +1,24 @@
 import 'package:bloc/bloc.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'auth_event.dart';
 import 'auth_state.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'dart:io';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final FirebaseAuth _auth;
   final FirebaseFirestore _firestore;
-  final FirebaseStorage _storage;
+
+  // Clave de API de ImgBB (para desarrollo local)
+  static const String _imgbbApiKey = '2c68fb0d7ff2f04835d1da3cf672e0a3';
 
   AuthBloc({
     FirebaseAuth? firebaseAuth,
     FirebaseFirestore? firestore,
-    FirebaseStorage? storage,
   })  : _auth = firebaseAuth ?? FirebaseAuth.instance,
         _firestore = firestore ?? FirebaseFirestore.instance,
-        _storage = storage ?? FirebaseStorage.instance,
         super(AuthInitial()) {
     on<LoginEvent>(_onLogin);
     on<SignUpEvent>(_onSignUp);
@@ -56,13 +58,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       if (user != null) {
         String? profileImageUrl;
 
-        // Subir imagen a Firebase Storage (si está disponible)
+        // Subir imagen a ImgBB (si está disponible)
         if (event.profileImage != null) {
-          final ref = _storage
-              .ref()
-              .child('userImages/${user.uid}/profile.jpg'); // Ruta en Storage
-          final uploadTask = await ref.putFile(event.profileImage!);
-          profileImageUrl = await uploadTask.ref.getDownloadURL();
+          profileImageUrl = await _uploadToImgBB(event.profileImage!);
         }
 
         // Guardar datos en Firestore
@@ -92,6 +90,22 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     } catch (e) {
       emit(AuthFailure('Error al cerrar sesión: ${e.toString()}')
           .copyWith(message: 'Error al cerrar sesión: ${e.toString()}'));
+    }
+  }
+
+  Future<String> _uploadToImgBB(File imageFile) async {
+    final url = Uri.parse('https://api.imgbb.com/1/upload');
+    final request = http.MultipartRequest('POST', url)
+      ..fields['key'] = _imgbbApiKey
+      ..files.add(await http.MultipartFile.fromPath('image', imageFile.path));
+
+    final response = await request.send();
+    if (response.statusCode == 200) {
+      final responseBody = await response.stream.bytesToString();
+      final jsonResponse = json.decode(responseBody);
+      return jsonResponse['data']['url'];
+    } else {
+      throw Exception('Error al subir imagen a ImgBB: ${response.statusCode}');
     }
   }
 }
